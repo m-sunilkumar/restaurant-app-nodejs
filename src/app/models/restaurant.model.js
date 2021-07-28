@@ -4,6 +4,9 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 const restaurantSchema = new mongoose.Schema({
+  business_id: {
+    type: String,
+  },
   name: {
     type: String,
     required: true,
@@ -18,7 +21,7 @@ const restaurantSchema = new mongoose.Schema({
   },
   longitude: {
     type: Number,
-    required:true,
+    required: true,
     default: 0,
     validate(value) {
       if (typeof value == "string") {
@@ -28,7 +31,7 @@ const restaurantSchema = new mongoose.Schema({
   },
   latitude: {
     type: Number,
-    required:true,
+    required: true,
     default: 0,
     validate(value) {
       if (typeof value == "string") {
@@ -36,6 +39,11 @@ const restaurantSchema = new mongoose.Schema({
       }
     },
   },
+  menu: [
+    {
+      type: String,
+    },
+  ],
   city: {
     type: String,
     required: true,
