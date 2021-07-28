@@ -1,9 +1,24 @@
 const Restaurant = require("../models/restaurant.model");
 
-exports.findAllRestaurants = (req, res) => {
+exports.findAllRestaurants = async (req, res) => {
+  const totalPage = 10;
+  const { page = 1, limit = 5 } = req.query;
+  const offset = parseInt((page - 1) * limit);
+  const restaurantCollectionCount = await Restaurant.count();
+  const totalPages = Math.ceil(restaurantCollectionCount / limit);
+  const currentPage = Math.ceil(restaurantCollectionCount % offset);
   Restaurant.find()
+    .limit(limit * 1)
+    .skip((page - 1) * limit)
+    .exec()
     .then((rests) => {
-      res.status(200).send({ data: rests });
+      res.status(200).send({
+        data: rests,
+        paging: {
+          page: currentPage,
+          tolalPages: totalPages,
+        },
+      });
     })
     .catch((err) => {
       res.status(500).send({
@@ -14,12 +29,14 @@ exports.findAllRestaurants = (req, res) => {
 };
 
 exports.findRestaurantsByQuery = (req, res) => {
-  // const { } = req.query.params;
-  if(req.query.name){
-    
+  let params = {};
+  if (!req.query.dish) {
+    params = req.query;
+  } else {
+    params["menu.item"] = req.query.dish;
   }
 
-  Restaurant.findOne(query)
+  Restaurant.find({ ...params })
     .then((rest) => {
       res.status(200).send({ data: rest });
     })

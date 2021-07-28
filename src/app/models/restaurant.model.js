@@ -41,14 +41,19 @@ const restaurantSchema = new mongoose.Schema({
   },
   menu: [
     {
-      type: String,
+      item: {
+        type:String
+      },
+      catogory:{
+        type:String
+      }
     },
   ],
   city: {
     type: String,
     required: true,
     minlength: 7,
-    trim: true,
+    trim: true, 
   },
   reviewCount: {
     type: Number,

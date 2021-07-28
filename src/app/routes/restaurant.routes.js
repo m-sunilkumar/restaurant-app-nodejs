@@ -9,5 +9,7 @@ const router = new express.Router();
 router.post("/restaurants", Restaurants.addRestaurant);
 
 router.get("/restaurants", Restaurants.findAllRestaurants);
+router.get("/restaurants/search", Restaurants.findRestaurantsByQuery);
+router.delete("/restaurants/:id",Restaurants.deleteRestaurant)
 
 module.exports = router;
