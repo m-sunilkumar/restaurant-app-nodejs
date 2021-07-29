@@ -6,17 +6,19 @@ const jwt = require("jsonwebtoken");
 const restaurantSchema = new mongoose.Schema({
   business_id: {
     type: String,
+    unique: true,
+    required: true,
   },
   name: {
     type: String,
     required: true,
     trim: true,
+    unique: true,
   },
 
   address: {
     type: String,
     required: true,
-    minlength: 7,
     trim: true,
   },
   longitude: {
@@ -42,18 +44,17 @@ const restaurantSchema = new mongoose.Schema({
   menu: [
     {
       item: {
-        type:String
+        type: String,
       },
-      catogory:{
-        type:String
-      }
+      catogory: {
+        type: String,
+      },
     },
   ],
   city: {
     type: String,
     required: true,
-    minlength: 7,
-    trim: true, 
+    trim: true,
   },
   reviewCount: {
     type: Number,

@@ -1,4 +1,4 @@
-const app = require("./app/index")
+const app = require("./app/index");
 
 const port = process.env.PORT;
 

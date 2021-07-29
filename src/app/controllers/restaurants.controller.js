@@ -1,4 +1,5 @@
 const Restaurant = require("../models/restaurant.model");
+const { BadRequestError } = require("../utils/errorController");
 
 exports.findAllRestaurants = async (req, res) => {
   const totalPage = 10;
@@ -21,14 +22,20 @@ exports.findAllRestaurants = async (req, res) => {
       });
     })
     .catch((err) => {
-      res.status(500).send({
-        message:
-          err.message || "Some error occurred while retrieving restaurants.",
-      });
+      // res.status(500).send({
+      //   message:
+      //     err.message || "Some error occurred while retrieving restaurants.",
+      // });
+      next(
+        new BadRequestError(
+          `${err.message}` ||
+            "Some error occurred while retrieving restaurants."
+        )
+      );
     });
 };
 
-exports.findRestaurantsByQuery = (req, res) => {
+exports.findRestaurantsByQuery = (req, res, next) => {
   let params = {};
   if (!req.query.dish) {
     params = req.query;
@@ -41,30 +48,43 @@ exports.findRestaurantsByQuery = (req, res) => {
       res.status(200).send({ data: rest });
     })
     .catch((err) => {
-      res
-        .status(500)
-        .json({ message: "Unable to get the restaurant you are looking" });
+      // res
+      //   .status(500)
+      //   .json({ message: "Unable to get the restaurant you are looking" });
+      err.statusCode = 500;
+      next(err);
     });
 };
 
-exports.addRestaurant = async (req, res) => {
+exports.addRestaurant = async (req, res, next) => {
   const restaurantData = new Restaurant(req.body);
   try {
     await restaurantData.save();
     res.status(201).send({ data: restaurantData });
   } catch (error) {
-    res.status(400).json({ error: error.toString() });
+    // res.status(400).json({ error: error.toString() });
+    error.statusCode = 400;
+    next(error);
   }
 };
+exports.deleteRestaurant = async (req, res, next) => {
+  const restId = req.params.id;
 
-exports.deleteRestaurant = async (req, res) => {
-  const restId = req.id;
   try {
-    await Restaurant.findOneAndDelete({ business_id: restId });
-    res
-      .status(200)
-      .json({ message: "Restaurant Record Deleted Successfully", id: restId });
+    const restauratData = await Restaurant.findOneAndDelete({
+      business_id: restId,
+    });
+    if (!restauratData) {
+      res.status(404).json({ message: "Requested resource not found!" });
+      return;
+    }
+
+    res.status(200).send({
+      message: "Restaurant Record Deleted Successfully",
+      id: restId,
+    });
   } catch (err) {
-    res.status(500).send({ message: "Unable to delete restaurant record" });
+    err.statusCode = 500;
+    next(err);
   }
 };
