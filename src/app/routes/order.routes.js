@@ -1,13 +1,11 @@
 const express = require("express");
-const User = require("../models/user");
-const auth = require("../middleware/auth");
+const User = require("../models/user/user.model");
+const auth = require("../middlewares/auth");
 const multer = require("multer");
+const OrderController = require("../controllers/order.controller");
 
 const router = new express.Router();
 
-router.get("/", (req, res) => {
-  // const body=req.body;
-  res.send({ message: "hello there!" });
-});
+router.post("/order/new", OrderController.addNewOrder);
 
 module.exports = router;

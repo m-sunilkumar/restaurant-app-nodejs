@@ -81,7 +81,17 @@ const restaurantSchema = new mongoose.Schema({
   avatar: {
     type: Buffer,
   },
+  restaurant_reviews: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Reviews",
+  },
 });
+
+// restaurantSchema.virtual("restaurant_reviews", {
+//   ref: "Reviews",
+//   localField: "_id",
+//   foreignField: "restaurantId",
+// });
 
 const Restaurant = mongoose.model("Restaurant", restaurantSchema);
 module.exports = Restaurant;

@@ -5,7 +5,7 @@ const jwt = require("jsonwebtoken");
 
 const userSchema = new mongoose.Schema(
   {
-    id: {
+    customer_id: {
       type: String,
       required: true,
     },
@@ -27,19 +27,19 @@ const userSchema = new mongoose.Schema(
       },
     },
     gender: {
-        type: String,
-        trim: true,
-      },
-      city: {
-        type: String,
-        required: true,
-        trim: true,
-      },
-      address: {
-        type: String,
-        required: true,
-        trim: true,
-      },
+      type: String,
+      trim: true,
+    },
+    city: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    address: {
+      type: String,
+      required: true,
+      trim: true,
+    },
     password: {
       type: String,
       required: true,
@@ -53,15 +53,14 @@ const userSchema = new mongoose.Schema(
     },
     phone: {
       type: Number,
-      required:true, 
+      required: true,
       validate(value) {
-        if (value < 0 ) {
+        if (value < 0) {
           throw new Error("Invalid Phone Number");
         }
-        if(value.toString().length>10 ||value.toString().length<  10 ){
-            throw new Error ("Phone number must be equal than 10 digit")
+        if (value.toString().length > 10 || value.toString().length < 10) {
+          throw new Error("Phone number must be equal than 10 digit");
         }
-        
       },
     },
     tokens: [
@@ -81,10 +80,15 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-userSchema.virtual("orders", {
-  ref: "Order",
+// userSchema.virtual("orders", {
+//   ref: "Order",
+//   localField: "_id",
+//   foreignField: "customerId",
+// });
+userSchema.virtual("restaurant_reviews", {
+  ref: "Reviews",
   localField: "_id",
-  foreignField: "owner",
+  foreignField: "customer_id",
 });
 
 userSchema.methods.toJSON = function () {
@@ -96,7 +100,7 @@ userSchema.methods.toJSON = function () {
   delete userObject.avatar;
 
   return userObject;
-}
+};
 userSchema.methods.generateAuthToken = async function () {
   const user = this;
   const token = jwt.sign({ _id: user._id.toString() }, process.env.JWT_SECRET);

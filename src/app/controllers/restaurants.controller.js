@@ -1,5 +1,6 @@
-const Restaurant = require("../models/restaurant.model");
+const Restaurant = require("../models/restaurant/restaurant.model");
 const { BadRequestError } = require("../utils/errorController");
+const logger = require("../utils/logger");
 
 exports.findAllRestaurants = async (req, res) => {
   const totalPage = 10;
@@ -13,6 +14,7 @@ exports.findAllRestaurants = async (req, res) => {
     .skip((page - 1) * limit)
     .exec()
     .then((rests) => {
+      logger.info(`Fetched all restaurant data`);
       res.status(200).send({
         data: rests,
         paging: {
@@ -22,10 +24,6 @@ exports.findAllRestaurants = async (req, res) => {
       });
     })
     .catch((err) => {
-      // res.status(500).send({
-      //   message:
-      //     err.message || "Some error occurred while retrieving restaurants.",
-      // });
       next(
         new BadRequestError(
           `${err.message}` ||
@@ -48,9 +46,9 @@ exports.findRestaurantsByQuery = (req, res, next) => {
       res.status(200).send({ data: rest });
     })
     .catch((err) => {
-      // res
-      //   .status(500)
-      //   .json({ message: "Unable to get the restaurant you are looking" });
+      logger.error(
+        `Unable to find the restaurant you are loooking into,  Here is the error statement ${err.toString()}`
+      );
       err.statusCode = 500;
       next(err);
     });
@@ -64,6 +62,9 @@ exports.addRestaurant = async (req, res, next) => {
   } catch (error) {
     // res.status(400).json({ error: error.toString() });
     error.statusCode = 400;
+    logger.error(
+      `Unable to add restaurant data,  Here is the error statement ${error.toString()}`
+    );
     next(error);
   }
 };
@@ -85,6 +86,9 @@ exports.deleteRestaurant = async (req, res, next) => {
     });
   } catch (err) {
     err.statusCode = 500;
+    logger.error(
+      `Unable to delete restaurant data,  Here is the error statement ${err.toString()}`
+    );
     next(err);
   }
 };

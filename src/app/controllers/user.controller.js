@@ -1,5 +1,5 @@
 const logger = require("../utils/logger");
-const User = require("../models/user.model");
+const User = require("../models/user/user.model");
 const { BadRequestError } = require("../utils/errorController");
 
 exports.addUser = async (req, res, next) => {
@@ -8,7 +8,7 @@ exports.addUser = async (req, res, next) => {
   try {
     await user.save();
     const token = await user.generateAuthToken();
-    logger.info(`new User Created with Email ${user.email}`);
+    logger.info(`new User Created`);
     res.status(201).send({ user, token });
   } catch (err) {
     err.statusCode = 400;
@@ -27,6 +27,7 @@ exports.loginUser = async (req, res) => {
     res.send({ user, token });
   } catch (e) {
     res.status(400).send();
+    logger.error(`Error in loging in to the account`);
     next(new BadRequestError("Unable to login!, Please try again."));
   }
 };
@@ -75,19 +76,24 @@ exports.updateUser = async (req, res) => {
   try {
     updates.forEach((update) => (req.user[update] = req.body[update]));
     await req.user.save();
+    logger.info(`user updated`);
     res.send(req.user);
-  } catch (e) {
-    // res.status(400).send(e);
-    next(new BadRequestError("Unknown error occured while updating the user"));
+  } catch (err) {
+    logger.error(
+      `There is a problem in updating the user Error: ${err.toString()}`
+    );
+    next(new BadRequestError(err));
   }
 };
 
 exports.deleteUser = async (req, res) => {
   try {
     await req.user.remove();
-    // sendCancelationEmail(user.email, user.name);
     res.send(req.user);
   } catch (e) {
+    logger.error(
+      `There is a problem in deleting the user...... Error: ${err.toString()}`
+    );
     res.status(500).send();
   }
 };
