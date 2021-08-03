@@ -1,5 +1,5 @@
 const Restaurant = require("../models/restaurant/restaurant.model");
-const { BadRequestError } = require("../utils/errorController");
+const BadRequestError = require("../utils/errorController");
 const logger = require("../utils/logger");
 
 exports.findAllRestaurants = async (req, res) => {

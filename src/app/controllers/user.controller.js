@@ -1,6 +1,6 @@
 const logger = require("../utils/logger");
 const User = require("../models/user/user.model");
-const { BadRequestError } = require("../utils/errorController");
+const BadRequestError = require("../utils/errorController");
 
 exports.addUser = async (req, res, next) => {
   const user = new User(req.body);
@@ -17,7 +17,7 @@ exports.addUser = async (req, res, next) => {
   }
 };
 
-exports.loginUser = async (req, res) => {
+exports.loginUser = async (req, res, next) => {
   try {
     const user = await User.findByCredentials(
       req.body.email,
@@ -25,10 +25,11 @@ exports.loginUser = async (req, res) => {
     );
     const token = await user.generateAuthToken();
     res.send({ user, token });
-  } catch (e) {
-    res.status(400).send();
-    logger.error(`Error in loging in to the account`);
-    next(new BadRequestError("Unable to login!, Please try again."));
+  } catch (err) {
+    logger.error(
+      `Error in loging in to the account ...Error : ${err.toString()}`
+    );
+    next(err);
   }
 };
 
@@ -64,7 +65,14 @@ exports.getUser = async (req, res) => {
 };
 exports.updateUser = async (req, res) => {
   const updates = Object.keys(req.body);
-  const allowedUpdates = ["name", "email", "password", "age"];
+  const allowedUpdates = [
+    "name",
+    "email",
+    "password",
+    "city",
+    "address",
+    "phone",
+  ];
   const isValidOperation = updates.every((update) =>
     allowedUpdates.includes(update)
   );
