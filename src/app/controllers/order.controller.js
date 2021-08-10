@@ -11,6 +11,25 @@ exports.addNewOrder = async (req, res, next) => {
     restaurant_name,
     customer_id,
   } = req.body;
+  //create orders table if not exists
+  client.query(
+    `CREATE TABLE  IF NOT EXISTS Orders(
+     orderId          SERIAL PRIMARY KEY,
+     customer_id      VARCHAR(50),
+     restaurantId     VARCHAR(50),
+     restaurant_name   VARCHAR(30),
+     orderTotal       INTEGER,
+     orderItems       JSON ARRAY
+   )`,
+    (err, res) => {
+      if (err) {
+        console.error("error in creating table", err);
+        return;
+      }
+      console.log("Table is successfully created");
+      // client.end();
+    }
+  );
 
   //inserted data into orders table
   const query = {
@@ -25,31 +44,53 @@ exports.addNewOrder = async (req, res, next) => {
     ],
   };
 
+  User.findByIdAndUpdate(
+    { _id: req.user._id },
+    { $push: { orders: req.body } },
+    { upsert: true, useFindAndModify: false },
+    (err, result) => {
+      if (err)
+        return res.status(400).json({
+          status: "failed",
+          message: "Unable to place order due to database failure",
+        });
+      result.save();
+    }
+  );
+
   client
     .query(query)
     .then((results) => {
-      console.log("results......", results);
-      res.status(201).json({ data: results.rows[0] });
+      res
+        .status(201)
+        .json({ data: results.rows[0], message: "order successfully placed!" });
     })
     .catch((err) => {
       logger.error(
         `Error while adding new order at addNewOrder... Error: ${err.toString()}`
       );
-      console.log("orderee", err);
       next(err);
     });
 };
 exports.getOrderById = async (req, res, next) => {
-  const { userId } = req.params;
+  const { orderId } = req.params;
   const { limit, skip } = parseInt(req.query);
   const query = {
-    text: "SELECT * FROM users WHERE id = $1",
-    values: [userId],
+    text: "SELECT * FROM orders WHERE orderId = $1",
+    values: [orderId],
   };
+  if (!orderId) {
+    return res.status(404).send({
+      message: "Please provide orderId in params to get the details",
+    });
+  }
   client
     .query(query)
     .then((result) => {
-      res.status(200).json(result.rows);
+      res.status(200).json({
+        data: result.rows[0],
+        message: `Oder Details fetched successfully for id ${orderId}`,
+      });
     })
     .catch((err) => {
       logger.error(`Unable to get the order details ERROR: ${err.toString()}`);
@@ -60,7 +101,7 @@ exports.updateOrder = async (req, res, next) => {
   const { restaurantId, orderItems, orderTotal } = req.body;
   const { orderId } = req.params;
   const query = {
-    text: "UPDATE orders SET restaurantId = $1, orderItems = $2 ordertTotal=3 WHERE orderId = $4",
+    text: "UPDATE orders SET restaurantId = $1, orderItems = $2, orderTotal=$3  WHERE orderId = $4",
     values: [restaurantId, orderItems, orderTotal, orderId],
   };
   const updates = Object.keys(req.body);
@@ -69,13 +110,13 @@ exports.updateOrder = async (req, res, next) => {
     allowedUpdates.includes(update)
   );
   if (!isAllowedUpdate || !orderId) {
-    return res.status(400).json({ message: "Invalid update request" });
+    return res.status(404).json({ message: "Invalid update request" });
   }
   client
     .query(query)
     .then((result) => {
       res.status(200).json({
-        message: "order details updated successfully for user",
+        message: `order details updated successfully for user with orderId: ${orderId}`,
         data: result.rows,
       });
     })
@@ -88,22 +129,39 @@ exports.updateOrder = async (req, res, next) => {
 };
 exports.deleteOrder = async (req, res, next) => {
   const { orderId } = req.params;
+  console.log("params", params);
   const query = {
     text: "DELETE FROM orders WHERE id = $1",
     values: [orderId],
   };
   if (!orderId) {
-    res.status(400).json({ message: "OrderId required!" });
+    res.status(404).json({ message: "OrderId required!" });
   }
   client
     .query(query)
     .then((result) => {
       res
         .status(200)
-        .json({ message: "Order Details deleted succesfully", id: orderId });
+        .json({ message: "Order details deleted succesfully", id: orderId });
     })
     .catch((err) => {
       logger.error(`Unable to delete order details,Error: ${err.toString()}`);
+      next(err);
+    });
+};
+
+exports.dropTable = (table) => {
+  const query = {
+    text: `DROP TABLE ${table}`,
+    values: [],
+  };
+  client
+    .query(query)
+    .then((result) => {
+      res.status(200).json({ message: "Table data deleted successfully" });
+    })
+    .catch((err) => {
+      logger.error("Unable to drop a table");
       next(err);
     });
 };

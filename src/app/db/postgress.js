@@ -2,16 +2,28 @@ var pg = require("pg");
 //or native libpq bindings
 //var pg = require('pg').native
 
-const credentials = {
-  user: "sunilkumarmanjappa",
-  host: "localhost",
-  database: "postgres",
-  password: "password",
-  port: 5432,
-};
+let credentials;
+if (process.env.NODE_ENV !== "test") {
+  credentials = {
+    user: "sunilkumarmanjappa",
+    host: "localhost",
+    database: "postgres",
+    password: "password",
+    port: 5432,
+  };
+} else if (process.env.NODE_ENV == "test") {
+  credentials = {
+    user: "sunilkumarmanjappa",
+    host: "localhost",
+    database: "template1",
+    password: "password",
+    port: 5432,
+  };
+}
 
 var conString = process.env.PGSQL_CONNECTION_STRING;
 var client = new pg.Client(credentials);
+
 client.connect(function (err) {
   if (err) {
     return console.error("could not connect to postgres", err);

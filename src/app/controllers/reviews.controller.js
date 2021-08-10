@@ -44,6 +44,7 @@ exports.getReviewsByRestaurantId = async (req, res, next) => {
       logger.error(
         `Something wneet wrong while fetching reviews for the selected restaurant ...Error: ${error.toString()} `
       );
+      error.statusCode = 400;
       next(error);
     });
 };
@@ -60,6 +61,32 @@ exports.getReviewbyItemId = async (req, res, next) => {
       next(error);
     });
 };
+
+exports.updateReviews = async (req, res, next) => {
+  const { restaurantId } = req.params;
+  const body = req.body;
+  const review = await Reviews.findOne({ business_id: restaurantId });
+  if (!review) {
+    return res
+      .status(404)
+      .json({ message: "Resource Not found!", status: "failed" });
+  }
+
+  Reviews.findOneAndUpdate({ business_id: restaurantId }, body)
+    .then((result) => {
+      res.status(200).json({
+        message: "Reviews updated successfully",
+        status: "success",
+        data: result,
+      });
+    })
+    .catch((error) => {
+      logger.error(
+        `Error in Update reviews controller function : ${error.toString()}`
+      );
+    });
+};
+
 exports.deleteReview = async (req, res, next) => {
   const { restaurantId } = req.params;
 

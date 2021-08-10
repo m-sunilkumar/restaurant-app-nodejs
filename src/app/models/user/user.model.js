@@ -39,6 +39,7 @@ const userSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    orders: [{ type: Object, unique: true }],
     password: {
       type: String,
       required: true,
@@ -84,6 +85,7 @@ const userSchema = new mongoose.Schema(
 //   localField: "_id",
 //   foreignField: "customerId",
 // });
+
 userSchema.virtual("restaurant_reviews", {
   ref: "Reviews",
   localField: "_id",

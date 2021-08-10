@@ -29,6 +29,7 @@ exports.loginUser = async (req, res, next) => {
     logger.error(
       `Error in loging in to the account ...Error : ${err.toString()}`
     );
+    err.statusCode = 400;
     next(err);
   }
 };
@@ -42,7 +43,9 @@ exports.logoutUser = async (req, res) => {
 
     res.send();
   } catch (e) {
-    res.status(500).send();
+    res.status(500).send({
+      message: "User has been logged out successfully",
+    });
   }
 };
 
@@ -50,7 +53,7 @@ exports.logoutAllUser = async (req, res) => {
   try {
     req.user.tokens = [];
     await req.user.save();
-    res.send();
+    res.send({ message: "User has been logged out from all sessions" });
   } catch (e) {
     res.status(500).send();
   }
@@ -85,7 +88,7 @@ exports.updateUser = async (req, res) => {
     updates.forEach((update) => (req.user[update] = req.body[update]));
     await req.user.save();
     logger.info(`user updated`);
-    res.send(req.user);
+    res.send({ data: req.user, message: "User data updated successfully" });
   } catch (err) {
     logger.error(
       `There is a problem in updating the user Error: ${err.toString()}`
@@ -97,11 +100,11 @@ exports.updateUser = async (req, res) => {
 exports.deleteUser = async (req, res) => {
   try {
     await req.user.remove();
-    res.send(req.user);
+    res.send({ data: req.user, message: "USER DATA REMOVED SUCCESSFULLY" });
   } catch (e) {
     logger.error(
       `There is a problem in deleting the user...... Error: ${err.toString()}`
     );
-    res.status(500).send();
+    next(err);
   }
 };

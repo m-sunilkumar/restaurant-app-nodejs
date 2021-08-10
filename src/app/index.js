@@ -7,6 +7,8 @@ const { errorHandler } = require("../app/middlewares/errors");
 
 require("./db/mongoose");
 require("./db/postgress");
+require("./publisher");
+require("./subscriber");
 
 const app = express();
 app.use(express.json());

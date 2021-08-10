@@ -9,8 +9,9 @@ router.post("/order/new", auth, OrderController.addNewOrder);
 
 router.get("/order/:orderId", auth, OrderController.getOrderById);
 
-router.patch("/order/:orderId", auth, OrderController.updateOrder);
+router.post("/order/:orderId", auth, OrderController.updateOrder);
 
 router.delete("/order/delete/:orderId", auth, OrderController.deleteOrder);
+router.delete("/clear-table-data", OrderController.dropTable);
 
 module.exports = router;

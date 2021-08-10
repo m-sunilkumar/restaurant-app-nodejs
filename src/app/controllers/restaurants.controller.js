@@ -40,6 +40,14 @@ exports.findRestaurantsByQuery = (req, res, next) => {
   } else {
     params["menu.item"] = req.query.dish;
   }
+  const allowedQuery = ["dish", "name", "city", "address"];
+  const queries = Object.keys(req.query);
+  const isQueryValid = queries.every((query) =>
+    allowedQuery.includes(query.toLowerCase())
+  );
+  if (!isQueryValid) {
+    return res.status(400).json({ message: "Invalid search queries passed!" });
+  }
 
   Restaurant.find({ ...params })
     .then((rest) => {
@@ -65,6 +73,56 @@ exports.addRestaurant = async (req, res, next) => {
     logger.error(
       `Unable to add restaurant data,  Here is the error statement ${error.toString()}`
     );
+    next(error);
+  }
+};
+
+exports.updateRestaurant = async (req, res) => {
+  const restId = req.params;
+  const body = req.body;
+  const restaurantData = await Restaurant.findOne({ business_id: restId });
+  if (!restaurantData) {
+    return res
+      .status(404)
+      .json({ status: "failed", message: "Resource not found" });
+  }
+  const updates = Object.keys(req.body);
+  const allowedUpdates = [
+    "latitude",
+    "longitude",
+    "address",
+    "catagories",
+    "name",
+    "address",
+    "city",
+    "menu",
+    "is_open",
+  ];
+  const isValidUpdate = updates.every((update) =>
+    allowedUpdates.includes(update)
+  );
+
+  if (!isValidUpdate) {
+    return res.status(400).json({
+      status: "failed",
+      message: "Invalid update request, Please check the fields and try again",
+    });
+  }
+  try {
+    Restaurant.findOneAndUpdate({ business_id: restId }, body).then(
+      (result) => {
+        res.status(200).json({
+          id: restId,
+          data: result,
+          message: "Restaurant details updated successfully",
+        });
+      }
+    );
+  } catch (error) {
+    logger.error(
+      `There is a error in uopdating restaurant data.  ERROR: ${error.toString()}`
+    );
+    error.statusCode = 400;
     next(error);
   }
 };

@@ -18,6 +18,13 @@ router.get(
   "/reviews-and-ratings/:restaurantId/:itemId",
   ReviewsController.getReviewbyItemId
 );
-// router.delete("/restaurants/:restaurantId",Restaurants.deleteRestaurant)
+router.patch(
+  "/reviews-and-ratings/:restaurantId",
+  ReviewsController.updateReviews
+);
+router.delete(
+  "/reviews-and-ratings/:restaurantId",
+  ReviewsController.deleteReview
+);
 
 module.exports = router;
