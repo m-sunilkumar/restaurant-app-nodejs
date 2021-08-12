@@ -13,9 +13,8 @@ const reviewsAndRatings = new mongoose.Schema({
     ref: "User",
   },
   business_id: {
-    type: String,
-    required: true,
-    unique: true,
+    type: mongoose.Schema.Types.String,
+    ref: "Restaurant",
   },
   restaurantName: {
     type: String,

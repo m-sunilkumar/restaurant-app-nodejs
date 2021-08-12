@@ -1,17 +1,31 @@
 const Reviews = require("../models/reviews/reviews.model");
+const Restaurant = require("../models/restaurant/restaurant.model");
 const logger = require("../utils/logger");
+const sendRabbitMQ = require("../publisher");
 
 exports.addReview = async (req, res, next) => {
   const reviews = new Reviews({ ...req.body, customer_id: req.user._id });
-
+  const { restaurantId } = req.params;
+  const queue_name = "rating_reviews_update";
   try {
     await reviews.save();
-    res
-      .status(201)
-      .json({ message: "Review Added Successfully", review: reviews });
+    Restaurant.findOneAndUpdate(
+      { business_id: restaurantId },
+      { customerReviews: reviews._id },
+      { upsert: true, new: true, useFindAndModify: false },
+      (err, results) => {
+        console.log("resultssss", results);
+        reviews.save();
+        res
+          .status(201)
+          .json({ message: "Review Added Successfully", review: reviews });
+      }
+    );
+    sendRabbitMQ(queue_name, reviews);
   } catch (error) {
+    console.log("errrorr", error);
     logger.error(
-      `Something wneet wrong in adding review ...Error: ${error.toString()} `
+      `Something went wrong in adding review ...Error: ${error.toString()} `
     );
     next(error);
   }
@@ -19,12 +33,12 @@ exports.addReview = async (req, res, next) => {
 exports.getReviewsByRestaurantId = async (req, res, next) => {
   const { restaurantId } = req.params;
   const { limit, skip } = parseInt(req.query);
-  const reviewsCount = await Reviews.count();
+  const reviewsCount = await Reviews.countDocuments();
   const totalPages = Math.ceil(reviewsCount / limit);
   const currentPage = Math.ceil(reviewsCount % skip);
-  Reviews.find({ business_id: restaurantId })
+  Reviews.findOne({ business_id: restaurantId })
     .populate({
-      path: "restaurant_reviews",
+      path: "",
       options: {
         limit: parseInt(limit),
         skip: parseInt(skip),

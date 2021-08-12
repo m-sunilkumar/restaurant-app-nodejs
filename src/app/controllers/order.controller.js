@@ -129,7 +129,6 @@ exports.updateOrder = async (req, res, next) => {
 };
 exports.deleteOrder = async (req, res, next) => {
   const { orderId } = req.params;
-  console.log("params", params);
   const query = {
     text: "DELETE FROM orders WHERE id = $1",
     values: [orderId],

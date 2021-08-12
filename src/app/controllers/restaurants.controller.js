@@ -50,6 +50,8 @@ exports.findRestaurantsByQuery = (req, res, next) => {
   }
 
   Restaurant.find({ ...params })
+    .populate("customerReviews")
+    .exec()
     .then((rest) => {
       res.status(200).send({ data: rest });
     })

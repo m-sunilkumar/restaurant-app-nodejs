@@ -21,7 +21,7 @@ const errorHandler = (err, req, res, next) => {
 const handleDuplicateKeyError = (err, res) => {
   const field = Object.keys(err.keyValue);
   const code = 409;
-  const error = `An account with that ${field} already exists.`;
+  const error = `A resource with that ${field} already exists.`;
   res.status(code).send({ message: error, fields: field });
 };
 

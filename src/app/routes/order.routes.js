@@ -6,6 +6,7 @@ const OrderController = require("../controllers/order.controller");
 const router = new express.Router();
 
 router.post("/order/new", auth, OrderController.addNewOrder);
+router.patch("/order/:orderId", auth, OrderController.updateOrder);
 
 router.get("/order/:orderId", auth, OrderController.getOrderById);
 
