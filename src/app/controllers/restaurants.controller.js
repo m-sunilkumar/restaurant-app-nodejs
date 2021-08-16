@@ -80,7 +80,7 @@ exports.addRestaurant = async (req, res, next) => {
 };
 
 exports.updateRestaurant = async (req, res) => {
-  const restId = req.params;
+  const restId = req.params.id;
   const body = req.body;
   const restaurantData = await Restaurant.findOne({ business_id: restId });
   if (!restaurantData) {
