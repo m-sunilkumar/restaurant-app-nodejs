@@ -66,7 +66,7 @@ describe("Users", () => {
         .request(server)
         .post(`/users/login`)
         .send({
-          email: "sunil.m@mindtree.com",
+          email: "sunil.m@gmail.com",
           password: "Hi@pass",
         })
         .end((err, res) => {
@@ -82,7 +82,7 @@ describe("Users", () => {
         .request(server)
         .post(`/users/login`)
         .send({
-          email: "sunil.m@mindtree.com",
+          email: "sunil.m@gmail.com",
           password: "@pass",
         })
         .end((err, res) => {
@@ -154,7 +154,7 @@ describe("Users", () => {
   describe("/PATCH  /users/me user", () => {
     it("it should UPDATE a user data given the user details", (done) => {
       let user = {
-        email: "sunil.m@mindtree.com",
+        email: "sunil.m@gmail.com",
         password: "Hi@pass",
         name: "sunilkumar",
         city: "bengaluru",
@@ -178,7 +178,7 @@ describe("Users", () => {
 
     it("it should not UPDATE a user if reqest body validation fails", (done) => {
       let user = {
-        email: "sunil.m@mindtree.com",
+        email: "sunil.m@gmail.com",
         password: "Hi@pass",
         name: "sunilkumar",
         city: "sirsi",
