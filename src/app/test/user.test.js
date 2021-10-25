@@ -21,7 +21,7 @@ describe("Users", () => {
     it("it should ADD  users to the database", (done) => {
       let user = {
         id: 10,
-        email: "hello@mindtree.com",
+        email: "hello@gmail.com",
         password: "password",
         name: "brodha",
         city: "bangalore",
